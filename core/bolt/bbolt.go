@@ -22,6 +22,7 @@ func NewDB() lichee_db.DB {
 
 type DB struct {
 	list map[string]*bolt.DB // 数据库
+	path string              // 数据库存放路径
 }
 
 // Delete 删除数据库
@@ -30,8 +31,8 @@ func (b *DB) Delete(name string) {
 }
 
 // Create 创建一个数据库对象
-func (b *DB) Create(path, name string) error {
-	fullPath := filepath.Join(path, fmt.Sprintf("%s.db", name))
+func (b *DB) Create(name string) error {
+	fullPath := filepath.Join(b.path, fmt.Sprintf("%s.db", name))
 	db, err := bolt.Open(fullPath, 0666, nil)
 	if err != nil {
 		return err
@@ -58,9 +59,19 @@ func (b *DB) Modify(old, new string) error {
 	return nil
 }
 
+func (b *DB) SetPath(path string) {
+	b.path = path
+}
+
 // GetBucket 获取一个BUCKET
 func (b *DB) GetBucket(dbName, name string) lichee_db.Bucket {
-	b.list[dbName].Update(func(tx *bolt.Tx) error {
+	db, ok := b.list[dbName]
+	if !ok {
+		b.Create(dbName)
+		db = b.list[dbName]
+	}
+
+	db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(name))
 		return err
 	})

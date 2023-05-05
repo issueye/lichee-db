@@ -9,10 +9,11 @@ const (
 
 // DB interface
 type DB interface {
-	Create(path, name string) error       // 创建数据库
+	Create(name string) error             // 创建数据库
 	GetBucket(dbName, name string) Bucket //  获取BUCKET
 	Modify(old, new string) error         // 修改数据库名称
 	Delete(name string)                   // 删除数据库
+	SetPath(path string)                  // 设置数据库存放路径
 }
 
 // Bucket interface

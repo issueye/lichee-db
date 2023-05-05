@@ -29,7 +29,8 @@ func Test_Bolt(t *testing.T) {
 	// 测试列表数据
 	db := bolt.NewDB()
 	t.Run("create", func(t *testing.T) {
-		err := db.Create("db", "test")
+		db.SetPath("db")
+		err := db.Create("test")
 		if err != nil {
 			t.Errorf("创建数据库失败，失败原因：%s", err.Error())
 		}
@@ -47,6 +48,8 @@ func Test_Bolt(t *testing.T) {
 				if err != nil {
 					t.Errorf("获取列表失败，失败原因：%s", err.Error())
 				}
+
+				dataList := make([][]byte, 0)
 
 				for j := 0; j < 50; j++ {
 					tb := &PatientInfo{
@@ -67,9 +70,12 @@ func Test_Bolt(t *testing.T) {
 					if err != nil {
 						t.Errorf("序列化数据失败，失败原因：%s", err.Error())
 					}
-					l.LPush(buf.Bytes())
+					dataList = append(dataList, buf.Bytes())
 				}
-				print(l)
+
+				l.LPush(dataList...)
+
+				// print(l)
 				wg.Done()
 			}(i, wg)
 		}
