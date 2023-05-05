@@ -1,4 +1,4 @@
-module issueye/lichee-db
+module github.com/issueye/lichee-db
 
 go 1.18
 

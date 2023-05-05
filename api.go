@@ -9,19 +9,19 @@ const (
 
 // DB interface
 type DB interface {
-	Create(name string) error     // 创建数据库
-	GetBucket(name string) Bucket //  获取BUCKET
-	Modify(old, new string) error // 修改数据库名称
-	Delete(name string)           // 删除数据库
+	Create(path, name string) error       // 创建数据库
+	GetBucket(dbName, name string) Bucket //  获取BUCKET
+	Modify(old, new string) error         // 修改数据库名称
+	Delete(name string)                   // 删除数据库
 }
 
 // Bucket interface
 type Bucket interface {
-	Keys() []string         // 获取所有的键名
-	List(name string) List  // 列表
-	Key(name string) []byte // 普通键值数据
-	Hash(name string) Hash  // K-V
-	Set(name string) Set    // Set 集合
+	Keys() []string                 // 获取所有的键名
+	List(name string) (List, error) // 列表
+	Key(name string) String         // 普通键值数据
+	Hash(name string) Hash          // K-V
+	Set(name string) Set            // Set 集合
 }
 
 // List 列表
@@ -53,4 +53,10 @@ type Set interface {
 	Inner(s Set) [][]byte // 比较共同
 	Pop() []byte          // 随机弹出一个元素
 	Len() int64           // 长度
+}
+
+// 字符串
+type String interface {
+	Get(key string) string        // 获取数据
+	Put(key string, value string) // 写入数据
 }

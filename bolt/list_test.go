@@ -2,8 +2,9 @@ package bolt
 
 import (
 	"fmt"
-	lichee_db "issueye/lichee-db"
 	"testing"
+
+	lichee_db "github.com/issueye/lichee-db"
 )
 
 func NewTestList(name string) *List {
@@ -21,9 +22,10 @@ func NewTestList(name string) *List {
 	return list
 }
 
-func printData(l *List) {
+func printData(l lichee_db.List) {
 	fmt.Println("============================")
-	for _, data := range l.queue {
+	list := l.List()
+	for _, data := range list {
 		fmt.Println(string(data))
 	}
 	fmt.Println("============================")

@@ -3,9 +3,10 @@ package bolt
 import (
 	"errors"
 	"fmt"
-	bolt "go.etcd.io/bbolt"
-	"issueye/lichee-db"
 	"path/filepath"
+
+	lichee_db "github.com/issueye/lichee-db"
+	bolt "go.etcd.io/bbolt"
 )
 
 var (
@@ -28,8 +29,9 @@ func (b *DB) Delete(name string) {
 }
 
 // Create 创建一个数据库对象
-func (b *DB) Create(name string) error {
-	db, err := bolt.Open(filepath.Join("db", fmt.Sprintf("%s.db", name)), 0666, nil)
+func (b *DB) Create(path, name string) error {
+	fullPath := filepath.Join(path, fmt.Sprintf("%s.db", name))
+	db, err := bolt.Open(fullPath, 0666, nil)
 	if err != nil {
 		return err
 	}
@@ -56,8 +58,8 @@ func (b *DB) Modify(old, new string) error {
 }
 
 // GetBucket 获取一个BUCKET
-func (b *DB) GetBucket(name string) lichee_db.Bucket {
-	b.list[name].Update(func(tx *bolt.Tx) error {
+func (b *DB) GetBucket(dbName, name string) lichee_db.Bucket {
+	b.list[dbName].Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(name))
 		return err
 	})
@@ -65,7 +67,7 @@ func (b *DB) GetBucket(name string) lichee_db.Bucket {
 	bucket := &Bucket{
 		Name: []byte(name),
 		keys: make([]string, 0),
-		db:   b.list[name],
+		db:   b.list[dbName],
 	}
 
 	return bucket
@@ -78,34 +80,44 @@ type Bucket struct {
 	db   *bolt.DB //  数据库
 }
 
-func (b *Bucket) View(r lichee_db.ReadFn) error {
-	err := r(b)
-	return err
-}
-
-func (b *Bucket) Update(w lichee_db.WriteFn) error {
-
-	err := w(b)
-	return err
-}
-
 // Keys 返回所有键
 func (b *Bucket) Keys() []string {
 	return b.keys
 }
 
-func (b *Bucket) List(name string) lichee_db.List {
-	return nil
-}
-
-func (b *Bucket) Key(name string) (data []byte) {
+// 返回列表对象
+func (b *Bucket) List(name string) (lichee_db.List, error) {
+	var value []byte
 	_ = b.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(b.Name)
-		data = bucket.Get([]byte(name))
+		value = bucket.Get([]byte(name))
 		return nil
 	})
 
-	return
+	return NewList(name, value, func(l *List) {
+		b.db.Update(func(tx *bolt.Tx) error {
+			bucket := tx.Bucket(b.Name)
+
+			//序列化
+			data, err := MarshalList(l)
+			if err != nil {
+				return err
+			}
+
+			// 写入数据
+			return bucket.Put([]byte(name), data)
+		})
+	})
+}
+
+func (b *Bucket) Key(name string) lichee_db.String {
+	var str []byte
+	_ = b.db.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(b.Name)
+		str = bucket.Get([]byte(name))
+		return nil
+	})
+	return Str(str)
 }
 
 func (b *Bucket) Hash(name string) lichee_db.Hash {
