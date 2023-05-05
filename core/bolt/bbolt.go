@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	lichee_db "github.com/issueye/lichee-db"
+	"github.com/issueye/lichee-db/core"
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -13,7 +14,7 @@ var (
 	ErrNotFound = errors.New("db not found")
 )
 
-func NewBbolt() lichee_db.DB {
+func NewDB() lichee_db.DB {
 	return &DB{
 		list: make(map[string]*bolt.DB),
 	}
@@ -94,12 +95,12 @@ func (b *Bucket) List(name string) (lichee_db.List, error) {
 		return nil
 	})
 
-	return NewList(name, value, func(l *List) {
+	return core.NewList(name, value, func(l *core.List) {
 		b.db.Update(func(tx *bolt.Tx) error {
 			bucket := tx.Bucket(b.Name)
 
 			//序列化
-			data, err := MarshalList(l)
+			data, err := core.MarshalList(l)
 			if err != nil {
 				return err
 			}
@@ -117,7 +118,7 @@ func (b *Bucket) Key(name string) lichee_db.String {
 		str = bucket.Get([]byte(name))
 		return nil
 	})
-	return Str(str)
+	return core.Str(str)
 }
 
 func (b *Bucket) Hash(name string) lichee_db.Hash {

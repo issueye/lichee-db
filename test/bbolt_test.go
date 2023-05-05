@@ -1,4 +1,4 @@
-package bolt
+package test
 
 import (
 	"bytes"
@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	lichee_db "github.com/issueye/lichee-db"
+	"github.com/issueye/lichee-db/core/bolt"
 )
 
 type PatientInfo struct {
@@ -26,7 +27,7 @@ type PatientInfo struct {
 
 func Test_Bolt(t *testing.T) {
 	// 测试列表数据
-	db := NewBbolt()
+	db := bolt.NewDB()
 	t.Run("create", func(t *testing.T) {
 		err := db.Create("db", "test")
 		if err != nil {

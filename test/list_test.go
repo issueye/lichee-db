@@ -1,24 +1,24 @@
-package bolt
+package test
 
 import (
 	"fmt"
 	"testing"
 
 	lichee_db "github.com/issueye/lichee-db"
+	"github.com/issueye/lichee-db/core"
 )
 
-func NewTestList(name string) *List {
-	q := make([][]byte, 0)
-	q = append(q, []byte("测试数据1"))
-	q = append(q, []byte("测试数据2"))
-	q = append(q, []byte("测试数据3"))
-	q = append(q, []byte("测试数据4"))
-	q = append(q, []byte("测试数据5"))
+func NewTestList(name string, t *testing.T) *core.List {
+	list, _ := core.NewList(fmt.Sprintf("test:%s", name), nil, nil)
 
-	list := &List{
-		name:  fmt.Sprintf("test:%s", name),
-		queue: q,
-	}
+	list.LPush(
+		[]byte("测试数据-0001"),
+		[]byte("测试数据-0002"),
+		[]byte("测试数据-0003"),
+		[]byte("测试数据-0004"),
+		[]byte("测试数据-0005"),
+	)
+
 	return list
 }
 
@@ -32,7 +32,7 @@ func printData(l lichee_db.List) {
 }
 
 func TestList_Insert(t *testing.T) {
-	list := NewTestList("insert")
+	list := NewTestList("insert", t)
 	printData(list)
 
 	t.Run("T=1", func(t *testing.T) {
@@ -50,33 +50,33 @@ func TestList_Insert(t *testing.T) {
 }
 
 func TestList_LPop(t *testing.T) {
-	list := NewTestList("lpop")
+	list := NewTestList("lpop", t)
 	printData(list)
 	list.LPop()
 	printData(list)
 }
 
 func TestList_LPush(t *testing.T) {
-	list := NewTestList("lpush")
+	list := NewTestList("lpush", t)
 	printData(list)
 	list.LPush([]byte("lpush 测试数据1"), []byte("lpush 测试数据2"), []byte("lpush 测试数据3"))
 	printData(list)
 }
 
 func TestList_Len(t *testing.T) {
-	list := NewTestList("len")
+	list := NewTestList("len", t)
 	fmt.Println("len", list.Len())
 }
 
 func TestList_List(t *testing.T) {
-	list := NewTestList("lpush")
+	list := NewTestList("lpush", t)
 	printData(list)
 	list.LPush([]byte("lpush 测试数据1"), []byte("lpush 测试数据2"), []byte("lpush 测试数据3"))
 	printData(list)
 }
 
 func TestList_Move(t *testing.T) {
-	list := NewTestList("move")
+	list := NewTestList("move", t)
 	printData(list)
 	list.LPush([]byte("lpush 测试数据1"), []byte("lpush 测试数据2"), []byte("lpush 测试数据3"))
 	printData(list)
@@ -87,7 +87,7 @@ func TestList_Move(t *testing.T) {
 }
 
 func TestList_RPop(t *testing.T) {
-	list := NewTestList("rpop")
+	list := NewTestList("rpop", t)
 	printData(list)
 	list.LPush([]byte("lpush 测试数据1"), []byte("lpush 测试数据2"), []byte("lpush 测试数据3"))
 	printData(list)
@@ -96,14 +96,14 @@ func TestList_RPop(t *testing.T) {
 }
 
 func TestList_RPush(t *testing.T) {
-	list := NewTestList("rpop")
+	list := NewTestList("rpop", t)
 	printData(list)
 	list.RPush([]byte("Rpush 测试数据1"), []byte("Rpush 测试数据2"), []byte("Rpush 测试数据3"))
 	printData(list)
 }
 
 func TestList_Remove(t *testing.T) {
-	list := NewTestList("remove")
+	list := NewTestList("remove", t)
 	printData(list)
 	list.RPush([]byte("Rpush 测试数据1"), []byte("Rpush 测试数据2"), []byte("Rpush 测试数据3"))
 	printData(list)
