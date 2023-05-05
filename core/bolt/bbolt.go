@@ -106,8 +106,8 @@ func (b *Bucket) List(name string) (lichee_db.List, error) {
 		return nil
 	})
 
-	return core.NewList(name, value, func(l *core.List) {
-		b.db.Update(func(tx *bolt.Tx) error {
+	return core.NewList(name, value, func(l *core.List) error {
+		return b.db.Update(func(tx *bolt.Tx) error {
 			bucket := tx.Bucket(b.Name)
 
 			//序列化

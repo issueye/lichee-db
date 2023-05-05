@@ -7,12 +7,12 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/issueye/lichee-db/core/bolt"
+	"github.com/issueye/lichee-db/core/leveldb"
 )
 
-func Test_Bolt(t *testing.T) {
+func Test_LevelDB(t *testing.T) {
 	// 测试列表数据
-	db := bolt.NewDB()
+	db := leveldb.NewDB()
 	t.Run("create", func(t *testing.T) {
 		db.SetPath("db")
 		err := db.Create("test")
@@ -60,7 +60,7 @@ func Test_Bolt(t *testing.T) {
 
 				l.LPush(dataList...)
 
-				// print(l)
+				print(l)
 				wg.Done()
 			}(i, wg)
 		}

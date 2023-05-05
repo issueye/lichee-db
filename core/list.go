@@ -12,7 +12,7 @@ var (
 	ErrOutOfRange = errors.New("out of range")
 )
 
-type SaveDataFunc func(*List)
+type SaveDataFunc func(*List) error
 
 type List struct {
 	name  string       // 名称
